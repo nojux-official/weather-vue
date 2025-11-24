@@ -36,10 +36,12 @@ const recordsPerPage = 10;
 
 const page = ref(1)
 const totalPages = ref(1)
-const forecastQueries = ref<string[]>(localStorage.getItem('forecastQueries')
+const allForecastQueries = ref<string[]>(localStorage.getItem('forecastQueries')
   ? JSON.parse(localStorage.getItem('forecastQueries') as string)
   : [])
+const forecastQueries = ref<string[]>([...allForecastQueries.value])
 const forecasts = ref<WeatherForecast[]>([])
+const searchQuery = ref('')
 const isModalVisible = ref(false)
 const hasErrors = ref(false)
 const errorMessage = ref("")
@@ -90,14 +92,10 @@ function handleCloseModal() {
 async function handleFilter(event: Event) {
   const target = event.target as HTMLInputElement
   const filterValue = target.value.toLowerCase()
+  searchQuery.value = filterValue
+  page.value = 1
 
   await updateForecasts()
-  
-  forecasts.value = forecasts.value.filter(forecast =>
-    forecast.city.toLowerCase().includes(filterValue) ||
-    forecast.zip.includes(filterValue) ||
-    forecast.coordinates.toLowerCase().includes(filterValue)
-  )
 }
 
 function handleError(message: string) {
@@ -122,8 +120,8 @@ Y8.   .8P    88    88 88
 */
 
 function addForecast(forecast: string) {
-  forecastQueries.value.push(forecast)
-  localStorage.setItem('forecastQueries', JSON.stringify(forecastQueries.value))
+  allForecastQueries.value.push(forecast)
+  localStorage.setItem('forecastQueries', JSON.stringify(allForecastQueries.value))
   updateForecasts()
 }
 
@@ -132,31 +130,35 @@ function removeForecast(id: string) {
 
   const idx = startIdx + forecasts.value.findIndex(f => f.id === id)
   forecasts.value = forecasts.value.filter(f => f.id !== id)
-  forecastQueries.value.splice(idx, 1)
+  allForecastQueries.value.splice(idx, 1)
   
-  console.log('Updated forecastQueries:', forecastQueries.value)
-  localStorage.setItem('forecastQueries', JSON.stringify(forecastQueries.value))
+  console.log('Updated forecastQueries:', allForecastQueries.value)
+  localStorage.setItem('forecastQueries', JSON.stringify(allForecastQueries.value))
   updateForecasts()
 }
 
 async function updateForecasts() {
   forecasts.value = []
 
+  //TODO: by what to filter? queries can be city, coordinates or zip
+  forecastQueries.value = allForecastQueries.value.filter(q =>
+    q.toLowerCase().includes(searchQuery.value)
+  )
+
   totalPages.value = Math.floor(forecastQueries.value.length / recordsPerPage) + 1;
 
-  const startIdx = (page.value - 1) * 10;
-  const endIdx = startIdx + 10;
-  const queriesInPage = forecastQueries.value.slice(startIdx, endIdx);
+    const startIdx = (page.value - 1) * 10;
+    const endIdx = startIdx + 10;
+    forecastQueries.value = forecastQueries.value.slice(startIdx, endIdx);
+    const promises = forecastQueries.value.map(q =>
+      fetchWeather(q).then(data => {
+        const forecast = parseWeatherData(data.data)
 
-  const promises = queriesInPage.map(q =>
-    fetchWeather(q).then(data => {
-      const forecast = parseWeatherData(data.data)
-
-      forecasts.value.push(forecast)
-    }).catch(error => {
-      console.error(`Error fetching weather for ${q}:`, error)
-      handleError(`Error fetching weather for ${q}: ${error.message}`)
-    })
+        forecasts.value.push(forecast)
+      }).catch(error => {
+        console.error(`Error fetching weather for ${q}:`, error)
+        handleError(`Error fetching weather for ${q}: ${error.message}`)
+      })
   )
   await Promise.all(promises)
 }
