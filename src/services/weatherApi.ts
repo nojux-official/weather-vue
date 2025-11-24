@@ -43,7 +43,7 @@ function parseWeatherData(data: any): WeatherForecast {
     sunrise: new Date(data.sys.sunrise * 1000).toISOString(),
     sunset: new Date(data.sys.sunset * 1000).toISOString(),
     weatherCondition: data.weather[0].main,
-    weatherImage: data.weather[0].main, //TODO: map to image URL OR icon
+    weatherImage: `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`
   };
 }
 

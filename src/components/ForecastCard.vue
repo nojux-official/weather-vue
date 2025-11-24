@@ -19,8 +19,9 @@ const emit = defineEmits<{
         {{ forecast.city }}, {{ forecast.country }}
       </p>
       <p class="subtitle">
-        {{ forecast.weatherCondition }} {{ forecast.weatherImage }}
+        {{ forecast.weatherCondition }} 
       </p>
+      <img :src="forecast.weatherImage" :alt="forecast.weatherCondition" />
       <div class="content">
         <p>Temperature: {{ forecast.temperature }}°C</p>
         <p>Humidity: {{ forecast.humidity }}%</p>
