@@ -17,6 +17,21 @@ const instance = Axios.create();
 const axios = setupCache(instance);
 
 const detectQueryType = (data) => {
+  if (data.includes(',')) {
+    const parts = data.split(',');
+    
+    // zip code with country code?
+    //TODO: fix
+    if (parts.length === 2 && /^\d+$/.test(parts[0].trim()) && /^[A-Z]{2}$/i.test(parts[1].trim())) {
+      return { type: 'zip', zip: parts[0].trim(), countryCode: parts[1].trim() };
+    }
+    
+    // coordinates (lat,lon both numeric)?
+    if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+      return { type: 'coords', lat: parts[0].trim(), lon: parts[1].trim() };
+    }
+  }
+
   return { type: 'city', city: data };
 };
 
@@ -40,7 +55,7 @@ app.get('/weather', async (req, res) => {
     } else if (query.type === 'coords') {
       url = `https://api.openweathermap.org/data/2.5/weather?lat=${query.lat}&lon=${query.lon}&appid=${API_KEY}`;
     } else if (query.type === 'zip') {
-      url = `https://api.openweathermap.org/data/2.5/weather?zip=${query.zip}&appid=${API_KEY}`;
+      url = `https://api.openweathermap.org/data/2.5/weather?zip=${query.zip},${query.countryCode}&appid=${API_KEY}`;
     }
 
     const response = await axios.get(url, {
