@@ -58,37 +58,52 @@ function handleAdd() {
         </header>
         
         <section class="modal-card-body">
-          <div class="field">
+          <div class="field mb-5">
+            <label class="label">Location</label>
             <div class="control">
               <input 
-                class="input" 
+                class="input is-medium" 
                 type="text" 
-                placeholder="Enter city OR coordinates lat,lon OR zip,country)" 
-                @change="handleSearch" 
+                placeholder="City, coordinates (lat,lon), or zip code" 
+                @change="handleSearch"
+                v-model="searchQuery"
               />
             </div>
+            <p class="help">Press Enter or click away to search</p>
           </div>
 
-          <div v-if="searchQuery">
-            <p class="mb-3">Searching for: <strong>{{ searchQuery }}</strong></p>
-            <div v-for="forecast in forecasts" :key="forecast.id">
-              <ForecastCard :forecast="forecast" />
-            </div>
+          <div v-if="forecasts && forecasts.length > 0" class="preview-section">
+            <p class="subtitle is-6 mb-3">Preview:</p>
+            <ForecastCard v-for="forecast in forecasts" :key="forecast.id" :forecast="forecast" />
+          </div>
+          
+          <div v-else-if="searchQuery" class="has-text-centered py-5">
+            <p class="has-text-grey">Searching...</p>
           </div>
         </section>
         
-        <footer class="modal-card-foot">
-          <div class="buttons">
-            <button 
-              class="button is-success" 
-              :disabled="!selectedForecast"
-              @click="handleAdd"
-            >
-              Add Forecast
-            </button>
-            <button class="button" @click="emit('close')">Cancel</button>
-          </div>
+        <footer class="modal-card-foot" style="justify-content: space-between;">
+          <button class="button" @click="emit('close')">Cancel</button>
+          <button 
+            class="button is-primary" 
+            :disabled="!selectedForecast"
+            @click="handleAdd"
+          >
+            Add Forecast
+          </button>
         </footer>
       </div>
     </div>
 </template>
+
+<style scoped>
+.modal-card {
+  max-width: 500px;
+}
+
+.preview-section {
+  background-color: #f5f5f5;
+  padding: 1rem;
+  border-radius: 6px;
+}
+</style>
