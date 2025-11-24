@@ -37,6 +37,8 @@ const forecastQueries = ref<string[]>(localStorage.getItem('forecastQueries')
 const forecasts = ref<WeatherForecast[]>([])
 const searchQuery = ref('')
 const isModalVisible = ref(false)
+const hasErrors = ref(false)
+const errorMessage = ref("")
 let updateInterval: number | null = null
 
 
@@ -94,6 +96,15 @@ async function handleFilter(event: Event) {
   )
 }
 
+function handleError(message: string) {
+  hasErrors.value = true
+  errorMessage.value = message
+  setTimeout(() => {
+    hasErrors.value = false
+    errorMessage.value = ""
+  }, 5000)
+}
+
 
 /*
 dP     dP d888888P dP dP        
@@ -134,6 +145,7 @@ async function updateForecasts() {
       forecasts.value.push(forecast)
     }).catch(error => {
       console.error(`Error fetching weather for ${q}:`, error)
+      handleError(`Error fetching weather for ${q}: ${error.message}`)
     })
   )
   await Promise.all(promises)
@@ -173,12 +185,12 @@ d888888P  88888888b 8888ba.88ba   888888ba  dP         .d888888  d888888P  88888
 
     
 
-    <AddForecastModal :isVisible="isModalVisible" @add="addForecast" @close="handleCloseModal" />
+    <AddForecastModal :isVisible="isModalVisible" @add="addForecast" @close="handleCloseModal" @error="handleError"/>
 
-    <!-- <div class="notification is-warning" style="margin: 1rem; align-self: end;">
-      <strong>Warning:</strong>
-      <p>This is a sample notification using Bulma CSS framework.</p>
-    </div> -->
+    <div v-if="hasErrors" class="notification is-danger" style="position: fixed; bottom: 1rem; right: 1rem; z-index: 1000; max-width: 400px;">
+      <strong>Error:</strong>
+      <p>{{ errorMessage }}</p>
+    </div>
   </div>
 </template>
 

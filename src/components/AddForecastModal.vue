@@ -11,6 +11,7 @@ const props = defineProps<{
 const emit = defineEmits<{
     (e: 'close'): void
     (e: 'add', forecast: string): void
+    (e: 'error', message: string): void
 }>()
 
 const forecasts = ref<WeatherForecast[]>()
@@ -27,6 +28,11 @@ function handleSearch(event: Event) {
     selectedForecast.value = parsedForecast
   }).catch(error => {
     console.error(`Error fetching weather data for ${searchQuery.value}:`, error)
+    
+    const errorMessage = error.response?.data?.message || error.message || 'Unknown error'
+    const errorCode = error.response?.data?.cod || error.response?.status || 'N/A'
+    
+    emit('error', `Error (${errorCode}) for ${searchQuery.value}: ${errorMessage}`)
   })
 }
 
