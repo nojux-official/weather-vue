@@ -33,9 +33,13 @@ const forecasts = ref<WeatherForecast[]>([
   }
 ])
 
-function handleAddForecast() {
+const isModalVisible = ref(false)
 
-  
+function handleAddForecast() {
+  isModalVisible.value = true
+}
+function handleCloseModal() {
+  isModalVisible.value = false
 }
 
 </script>
@@ -48,9 +52,9 @@ function handleAddForecast() {
       :forecast="forecast"
     />
 
-    <button class="button" onclick="handleAddForecast()">Add Forecast</button>
+    <button class="button" @click="handleAddForecast">Add Forecast</button>
 
-    <AddForecastModal :isVisible="true" />
+    <AddForecastModal :isVisible="isModalVisible" @close="handleCloseModal" />
 
     <!-- <div class="notification is-warning" style="margin: 1rem; align-self: end;">
       <strong>Warning:</strong>
