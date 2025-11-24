@@ -1,48 +1,42 @@
 # weather-vue
 
-This template should help get you started developing with Vue 3 in Vite.
+This application provides current weather information for a specified city using the OpenWeatherMap API. It is built with Vue.js, Vite and Bulma.
+For the API requests, a simple Express.js proxy server is used to securely handle the OpenWeatherMap API key.
 
-## Recommended IDE Setup
+## Setup
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+### Prerequisites
+- Node.js and npm installed (long-term support version recommended)
+- OpenWeatherMap API key (get one free at [OpenWeatherMap](https://openweathermap.org/api))
 
-## Recommended Browser Setup
+### Environment Configuration
+Create a `.env` file in the root directory:
+```
+VITE_OPENWEATHER_API_KEY=your_api_key_here
+```
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd) 
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
-
-## Type Support for `.vue` Imports in TS
-
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
+## Development
 
 ```sh
 npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
 npm run dev
 ```
 
-### Type-Check, Compile and Minify for Production
+The app will be running at `http://localhost:5173`.
 
-```sh
-npm run build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
+### Linting
 ```sh
 npm run lint
 ```
+
+### Production
+This includes code Type-Check, Compilation and Minification
+
+Steps required to run in production mode:
+1. Build the app (`npm run build`)
+2. Serve the built files (e.g., using `http-server ./dist`)
+3. Get the API key and place it in the .env file
+4. Run the proxy server as it provides api access (`npm run proxy`)
+5. Access the app in your browser at `http://localhost:5173`
+
+
