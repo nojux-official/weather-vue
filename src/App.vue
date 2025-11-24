@@ -20,6 +20,16 @@ export interface WeatherForecast {
   weatherImage: string
 }
 
+/*
+.d88888b   88888888b d888888P dP     dP  888888ba  
+88.    "'  88           88    88     88  88    `8b 
+`Y88888b. a88aaaa       88    88     88 a88aaaa8P' 
+      `8b  88           88    88     88  88        
+d8'   .8P  88           88    Y8.   .8P  88        
+ Y88888P   88888888P    dP    `Y88888P'  dP        
+                                                   
+                                                   
+*/
 const updateIntervalTime = 10 * 1000; //ms
 const forecastQueries = ref<string[]>(localStorage.getItem('forecastQueries')
   ? JSON.parse(localStorage.getItem('forecastQueries') as string)
@@ -29,58 +39,6 @@ const searchQuery = ref('')
 const isModalVisible = ref(false)
 let updateInterval: number | null = null
 
-function handleOpenForecast() {
-  isModalVisible.value = true
-}
-function handleCloseModal() {
-  isModalVisible.value = false
-}
-
-function addForecast(forecast: string) {
-  forecastQueries.value.push(forecast)
-  localStorage.setItem('forecastQueries', JSON.stringify(forecastQueries.value))
-  updateForecasts()
-}
-
-function removeForecast(id: string) {
-  
-  forecasts.value = forecasts.value.filter(f => f.id !== id)
-  forecastQueries.value = []
-  forecasts.value.map(f => {
-    forecastQueries.value.push(
-      `${f.coordinates}`
-      )
-  })
-  console.log('Updated forecastQueries:', forecastQueries.value)
-  localStorage.setItem('forecastQueries', JSON.stringify(forecastQueries.value))
-  
-}
-
-async function handleFilter(event: Event) {
-  const target = event.target as HTMLInputElement
-  const filterValue = target.value.toLowerCase()
-
-  await updateForecasts()
-  
-  forecasts.value = forecasts.value.filter(forecast =>
-    forecast.city.toLowerCase().includes(filterValue) ||
-    forecast.zip.includes(filterValue) ||
-    forecast.coordinates.toLowerCase().includes(filterValue)
-  )
-}
-
-async function updateForecasts() {
-  forecasts.value = []
-  const promises = forecastQueries.value.map(q =>
-    fetchWeather(q).then(data => {
-      const forecast = parseWeatherData(data.data)
-      forecasts.value.push(forecast)
-    }).catch(error => {
-      console.error(`Error fetching weather for ${q}:`, error)
-    })
-  )
-  await Promise.all(promises)
-}
 
 function startAutoUpdate() {
   updateInterval = window.setInterval(() => {
@@ -105,7 +63,94 @@ onUnmounted(() => {
   stopAutoUpdate()
 })
 
+
+/*
+dP     dP   .d888888  888888ba  888888ba  dP         88888888b  888888ba  .d88888b  
+88     88  d8'    88  88    `8b 88    `8b 88         88         88    `8b 88.    "' 
+88aaaaa88a 88aaaaa88a 88     88 88     88 88        a88aaaa    a88aaaa8P' `Y88888b. 
+88     88  88     88  88     88 88     88 88         88         88   `8b.       `8b 
+88     88  88     88  88     88 88    .8P 88         88         88     88 d8'   .8P 
+dP     dP  88     88  dP     dP 8888888P  88888888P  88888888P  dP     dP  Y88888P  
+                                                                                    
+                                                                                    
+*/
+function handleOpenForecast() {
+  isModalVisible.value = true
+}
+function handleCloseModal() {
+  isModalVisible.value = false
+}
+
+async function handleFilter(event: Event) {
+  const target = event.target as HTMLInputElement
+  const filterValue = target.value.toLowerCase()
+
+  await updateForecasts()
+  
+  forecasts.value = forecasts.value.filter(forecast =>
+    forecast.city.toLowerCase().includes(filterValue) ||
+    forecast.zip.includes(filterValue) ||
+    forecast.coordinates.toLowerCase().includes(filterValue)
+  )
+}
+
+
+/*
+dP     dP d888888P dP dP        
+88     88    88    88 88        
+88     88    88    88 88        
+88     88    88    88 88        
+Y8.   .8P    88    88 88        
+`Y88888P'    dP    dP 88888888P 
+                                
+                                
+*/
+
+function addForecast(forecast: string) {
+  forecastQueries.value.push(forecast)
+  localStorage.setItem('forecastQueries', JSON.stringify(forecastQueries.value))
+  updateForecasts()
+}
+
+function removeForecast(id: string) {
+  
+  forecasts.value = forecasts.value.filter(f => f.id !== id)
+  forecastQueries.value = []
+  forecasts.value.map(f => {
+    forecastQueries.value.push(
+      `${f.coordinates}`
+      )
+  })
+  console.log('Updated forecastQueries:', forecastQueries.value)
+  localStorage.setItem('forecastQueries', JSON.stringify(forecastQueries.value))
+  
+}
+
+async function updateForecasts() {
+  forecasts.value = []
+  const promises = forecastQueries.value.map(q =>
+    fetchWeather(q).then(data => {
+      const forecast = parseWeatherData(data.data)
+      forecasts.value.push(forecast)
+    }).catch(error => {
+      console.error(`Error fetching weather for ${q}:`, error)
+    })
+  )
+  await Promise.all(promises)
+}
+
 </script>
+
+/*
+d888888P  88888888b 8888ba.88ba   888888ba  dP         .d888888  d888888P  88888888b 
+   88     88        88  `8b  `8b  88    `8b 88        d8'    88     88     88        
+   88    a88aaaa    88   88   88 a88aaaa8P' 88        88aaaaa88a    88    a88aaaa    
+   88     88        88   88   88  88        88        88     88     88     88        
+   88     88        88   88   88  88        88        88     88     88     88        
+   dP     88888888P dP   dP   dP  dP        88888888P 88     88     dP     88888888P 
+                                                                                     
+                                                                                     
+*/
 
 <template>
   <div id="app" style="display: flex; flex-direction: column; min-height: 100vh;">
