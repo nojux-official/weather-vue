@@ -39,6 +39,21 @@ function handleCloseModal() {
 function addForecast(forecast: string) {
   forecastQueries.value.push(forecast)
   localStorage.setItem('forecastQueries', JSON.stringify(forecastQueries.value))
+  updateForecasts()
+}
+
+function removeForecast(id: string) {
+  
+  forecasts.value = forecasts.value.filter(f => f.id !== id)
+  forecastQueries.value = []
+  forecasts.value.map(f => {
+    forecastQueries.value.push(
+      `${f.coordinates}`
+      )
+  })
+  console.log('Updated forecastQueries:', forecastQueries.value)
+  localStorage.setItem('forecastQueries', JSON.stringify(forecastQueries.value))
+  
 }
 
 async function handleFilter(event: Event) {
@@ -90,16 +105,12 @@ onUnmounted(() => {
   stopAutoUpdate()
 })
 
-fetchWeather('London').then(data => {
-  console.log('Weather data for London:', data)
-}).catch(error => {
-  console.error('Error fetching weather data for London:', error)
-})
-
 </script>
 
 <template>
   <div id="app" style="display: flex; flex-direction: column; min-height: 100vh;">
+    <button class="button mb-3" @click="handleOpenForecast">Add Forecast</button>
+
     <div class="field">
       <div style="display: flex; flex-direction: row; gap: 1rem;" class="control">
         <input class="input" type="text" placeholder="Filter forecasts" @change="handleFilter" />
@@ -107,11 +118,11 @@ fetchWeather('London').then(data => {
       </div>
     </div>
 
-    <button class="button" @click="handleOpenForecast">Add Forecast</button>
-
-    <div v-for="forecast in forecasts">
+    <div v-for="forecast in forecasts" :key="forecast.id">
       <ForecastCard
+        @remove="removeForecast"
         :forecast="forecast"
+        :showRemoveButton="true"
       />
     </div>
 

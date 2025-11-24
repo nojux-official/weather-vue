@@ -3,12 +3,17 @@ import type { WeatherForecast } from '@/App.vue'
 
 const props = defineProps<{
   forecast: WeatherForecast
+  showRemoveButton?: boolean
+}>()
+
+const emit = defineEmits<{
+  (e: 'remove', idx: number): void
 }>()
 
 </script>
 
 <template>
-  <div class="card" style="">
+  <div class="card mb-4 p-2">
     <div class="card-content">
       <p class="title">
         {{ forecast.city }}, {{ forecast.country }}
@@ -25,5 +30,6 @@ const props = defineProps<{
         <p>Sunset: {{ forecast.sunset }}</p>
       </div>
     </div>
+    <button v-if="showRemoveButton" class="button is-danger" @click.prevent="emit('remove', forecast.id)">Remove</button>
   </div>
 </template>
