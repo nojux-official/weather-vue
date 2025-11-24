@@ -10,7 +10,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
     (e: 'close'): void
-    (e: 'add', forecast: WeatherForecast): void
+    (e: 'add', forecast: string): void
 }>()
 
 const forecasts = ref<WeatherForecast[]>()
@@ -32,7 +32,7 @@ function handleSearch(event: Event) {
 
 function handleAdd() {
   if (selectedForecast.value) {
-    emit('add', selectedForecast.value)
+    emit('add', searchQuery.value)
     emit('close')
   }
 }

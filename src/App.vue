@@ -20,56 +20,10 @@ export interface WeatherForecast {
   weatherImage: string
 }
 
-
-const initialForecasts: WeatherForecast[] = [
-  {
-    id: '1',
-    city: 'London',
-    country: 'GB',
-    zip: 'SW1A 1AA',
-    coordinates: '51.5074° N, 0.1278° W',
-    temperature: 15,
-    humidity: 72,
-    windSpeed: 5.2,
-    pressure: 1013,
-    sunrise: '06:45 AM',
-    sunset: '05:30 PM',
-    weatherCondition: 'Cloudy',
-    weatherImage: '☁️',
-  },
-  {
-    id: '2',
-    city: 'Tokyo',
-    country: 'JP',
-    zip: '100-0001',
-    coordinates: '35.6895° N, 139.6917° E',
-    temperature: 22,
-    humidity: 65,
-    windSpeed: 3.8,
-    pressure: 1015,
-    sunrise: '05:30 AM',
-    sunset: '04:45 PM',
-    weatherCondition: 'Clear',
-    weatherImage: '☀️',
-  },
-  {
-    id: '3',
-    city: 'New York',
-    country: 'US',
-    zip: '10001',
-    coordinates: '40.7128° N, 74.0060° W',
-    temperature: 18,
-    humidity: 68,
-    windSpeed: 6.5,
-    pressure: 1012,
-    sunrise: '06:20 AM',
-    sunset: '05:00 PM',
-    weatherCondition: 'Rainy',
-    weatherImage: '🌧️',
-  },
-]
-
-const forecasts = ref<WeatherForecast[]>(initialForecasts)
+const forecastQueries = ref<string[]>(localStorage.getItem('forecastQueries')
+  ? JSON.parse(localStorage.getItem('forecastQueries') as string)
+  : [])
+const forecasts = ref<WeatherForecast[]>([])
 const searchQuery = ref('')
 
 const isModalVisible = ref(false)
@@ -81,10 +35,15 @@ function handleCloseModal() {
   isModalVisible.value = false
 }
 
+function addForecast(forecast : string) {
+  forecastQueries.value.push(forecast)
+  localStorage.setItem('forecastQueries', JSON.stringify(forecastQueries.value))
+}
+
 function handleFilter(event: Event) {
   const target = event.target as HTMLInputElement
   
-  forecasts.value = initialForecasts.filter(forecast =>
+  forecasts.value = forecasts.value.filter(forecast =>
     forecast.city.toLowerCase().includes(target.value.toLowerCase()) ||
     forecast.zip.includes(target.value) ||
     forecast.coordinates.toLowerCase().includes(target.value.toLowerCase())
@@ -118,7 +77,7 @@ fetchWeather('London').then(data => {
 
     
 
-    <AddForecastModal :isVisible="isModalVisible" @close="handleCloseModal" />
+    <AddForecastModal :isVisible="isModalVisible" @add="addForecast" @close="handleCloseModal" />
 
     <!-- <div class="notification is-warning" style="margin: 1rem; align-self: end;">
       <strong>Warning:</strong>
