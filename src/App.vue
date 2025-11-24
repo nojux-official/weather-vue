@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import ForecastCard from '@/components/ForecastCard.vue'
 import AddForecastModal from '@/components/AddForecastModal.vue'
+import { fetchWeather } from '@/services/weatherApi'
 
 export interface WeatherForecast {
   id: string
@@ -89,6 +90,12 @@ function handleFilter(event: Event) {
     forecast.coordinates.toLowerCase().includes(target.value.toLowerCase())
   )
 }
+
+fetchWeather('London').then(data => {
+  console.log('Weather data for London:', data)
+}).catch(error => {
+  console.error('Error fetching weather data for London:', error)
+})
 
 </script>
 
