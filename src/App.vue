@@ -45,6 +45,7 @@ const searchQuery = ref('')
 const isModalVisible = ref(false)
 const hasErrors = ref(false)
 const errorMessage = ref("")
+const isLoading = ref(false)
 let updateInterval: number | null = null
 
 
@@ -98,6 +99,11 @@ async function handleFilter(event: Event) {
   await updateForecasts()
 }
 
+function clearSearch() {
+  searchQuery.value = ''
+  updateForecasts()
+}
+
 function handleError(message: string) {
   hasErrors.value = true
   errorMessage.value = message
@@ -138,6 +144,7 @@ function removeForecast(id: string) {
 }
 
 async function updateForecasts() {
+  isLoading.value = true
   forecasts.value = []
 
   //TODO: by what to filter? queries can be city, coordinates or zip
@@ -161,6 +168,7 @@ async function updateForecasts() {
       })
   )
   await Promise.all(promises)
+  isLoading.value = false
 }
 
 </script>
@@ -177,17 +185,33 @@ d888888P  88888888b 8888ba.88ba   888888ba  dP         .d888888  d888888P  88888
 */
 
 <template>
-  <div id="app" style="display: flex; flex-direction: column; min-height: 100vh;">
-    <button class="button mb-3" @click="handleOpenForecast">Add Forecast</button>
+  <div id="app" class="container p-4">
+    <div class="level mb-5">
+      <div class="level-left">
+        <h1 class="title is-3">Weather Forecasts</h1>
+      </div>
+      <div class="level-right">
+        <button class="button is-primary" @click="handleOpenForecast">Add Forecast</button>
+      </div>
+    </div>
 
-    <div class="field">
-      <div style="display: flex; flex-direction: row; gap: 1rem;" class="control">
-        <input class="input" type="text" placeholder="Filter forecasts" @change="handleFilter" />
-        <button class="button is-info" @click="">Filter</button>
+    <div class="field has-addons mb-5">
+      <div class="control is-expanded">
+        <input 
+          class="input" 
+          type="text" 
+          placeholder="Search by city, zip, or coordinates..." 
+          v-model="searchQuery"
+          @input="handleFilter" 
+        />
+      </div>
+      <div class="control" v-if="searchQuery">
+        <button class="button" @click="clearSearch" title="Clear search">✕</button>
       </div>
     </div>
 
     <Pagination
+      v-if="totalPages > 1"
       :currentPage="page"
       :totalPages="totalPages"
       @page-changed="(newPage) => {
@@ -196,8 +220,20 @@ d888888P  88888888b 8888ba.88ba   888888ba  dP         .d888888  d888888P  88888
         }"
     />
 
-    <div v-for="forecast in forecasts" :key="forecast.id">
+    <div v-if="isLoading" class="has-text-centered py-6">
+      <div class="is-size-4">Loading forecasts...</div>
+    </div>
+
+    <div v-else-if="forecasts.length === 0" class="notification is-info has-text-centered">
+      <p class="is-size-5">
+        {{ searchQuery ? 'No forecasts match your search.' : 'No forecasts added yet. Click "Add Forecast" to get started!' }}
+      </p>
+    </div>
+
+    <div v-else class="forecast-grid">
       <ForecastCard
+        v-for="forecast in forecasts" 
+        :key="forecast.id"
         @remove="removeForecast"
         :forecast="forecast"
         :showRemoveButton="true"
@@ -207,15 +243,18 @@ d888888P  88888888b 8888ba.88ba   888888ba  dP         .d888888  d888888P  88888
     <AddForecastModal :isVisible="isModalVisible" @add="addForecast" @close="handleCloseModal" @error="handleError"/>
 
     <Pagination
+      v-if="totalPages > 1 && forecasts.length > 0"
       :currentPage="page"
       :totalPages="totalPages"
       @page-changed="(newPage) => {
         page = newPage
         updateForecasts()
         }"
+      class="mt-5"
     />
 
-    <div v-if="hasErrors" class="notification is-danger" style="position: fixed; bottom: 1rem; right: 1rem; z-index: 1000; max-width: 400px;">
+    <div v-if="hasErrors" class="notification is-danger error-toast">
+      <button class="delete" @click="hasErrors = false"></button>
       <strong>Error:</strong>
       <p>{{ errorMessage }}</p>
     </div>
@@ -224,4 +263,18 @@ d888888P  88888888b 8888ba.88ba   888888ba  dP         .d888888  d888888P  88888
 
 <style lang="scss">
 @import "bulma";
+
+.forecast-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.error-toast {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  z-index: 1000;
+  max-width: 400px;
+}
 </style>
