@@ -41,28 +41,36 @@ function addForecast(forecast: string) {
   localStorage.setItem('forecastQueries', JSON.stringify(forecastQueries.value))
 }
 
-function handleFilter(event: Event) {
+async function handleFilter(event: Event) {
   const target = event.target as HTMLInputElement
+  const filterValue = target.value.toLowerCase()
+
+  await updateForecasts()
   
   forecasts.value = forecasts.value.filter(forecast =>
-    forecast.city.toLowerCase().includes(target.value.toLowerCase()) ||
-    forecast.zip.includes(target.value) ||
-    forecast.coordinates.toLowerCase().includes(target.value.toLowerCase())
+    forecast.city.toLowerCase().includes(filterValue) ||
+    forecast.zip.includes(filterValue) ||
+    forecast.coordinates.toLowerCase().includes(filterValue)
   )
 }
 
-function updateForecasts() {
-  forecastQueries.value.forEach(q => {
+async function updateForecasts() {
+  forecasts.value = []
+  const promises = forecastQueries.value.map(q =>
     fetchWeather(q).then(data => {
       const forecast = parseWeatherData(data.data)
       forecasts.value.push(forecast)
+    }).catch(error => {
+      console.error(`Error fetching weather for ${q}:`, error)
     })
-  })
+  )
+  await Promise.all(promises)
 }
 
 function startAutoUpdate() {
   updateInterval = window.setInterval(() => {
     console.log('Updating forecasts...', new Date().toLocaleTimeString())
+    updateForecasts()
   }, updateIntervalTime)
 }
 
