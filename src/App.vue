@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import ForecastCard from '@/components/ForecastCard.vue'
 import AddForecastModal from '@/components/AddForecastModal.vue'
-import { fetchWeather } from '@/services/weatherApi'
+import { fetchWeather, parseWeatherData } from '@/services/weatherApi'
 
 export interface WeatherForecast {
   id: string
@@ -20,13 +20,14 @@ export interface WeatherForecast {
   weatherImage: string
 }
 
+const updateIntervalTime = 10 * 1000; //ms
 const forecastQueries = ref<string[]>(localStorage.getItem('forecastQueries')
   ? JSON.parse(localStorage.getItem('forecastQueries') as string)
   : [])
 const forecasts = ref<WeatherForecast[]>([])
 const searchQuery = ref('')
-
 const isModalVisible = ref(false)
+let updateInterval: number | null = null
 
 function handleOpenForecast() {
   isModalVisible.value = true
@@ -35,7 +36,7 @@ function handleCloseModal() {
   isModalVisible.value = false
 }
 
-function addForecast(forecast : string) {
+function addForecast(forecast: string) {
   forecastQueries.value.push(forecast)
   localStorage.setItem('forecastQueries', JSON.stringify(forecastQueries.value))
 }
@@ -49,6 +50,27 @@ function handleFilter(event: Event) {
     forecast.coordinates.toLowerCase().includes(target.value.toLowerCase())
   )
 }
+
+function startAutoUpdate() {
+  updateInterval = window.setInterval(() => {
+    console.log('Updating forecasts...', new Date().toLocaleTimeString())
+  }, updateIntervalTime)
+}
+
+function stopAutoUpdate() {
+  if (updateInterval) {
+    clearInterval(updateInterval)
+    updateInterval = null
+  }
+}
+
+onMounted(() => {
+  startAutoUpdate()
+})
+
+onUnmounted(() => {
+  stopAutoUpdate()
+})
 
 fetchWeather('London').then(data => {
   console.log('Weather data for London:', data)
