@@ -2,6 +2,7 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import ForecastCard from '@/components/ForecastCard.vue'
 import AddForecastModal from '@/components/AddForecastModal.vue'
+import Pagination from '@/components/Pagination.vue'
 import { fetchWeather, parseWeatherData } from '@/services/weatherApi'
 
 export interface WeatherForecast {
@@ -31,11 +32,13 @@ d8'   .8P  88           88    Y8.   .8P  88
                                                    
 */
 const updateIntervalTime = 10 * 1000; //ms
+
+const page = ref(1)
+const totalPages = ref(1)
 const forecastQueries = ref<string[]>(localStorage.getItem('forecastQueries')
   ? JSON.parse(localStorage.getItem('forecastQueries') as string)
   : [])
 const forecasts = ref<WeatherForecast[]>([])
-const searchQuery = ref('')
 const isModalVisible = ref(false)
 const hasErrors = ref(false)
 const errorMessage = ref("")
@@ -139,9 +142,17 @@ function removeForecast(id: string) {
 
 async function updateForecasts() {
   forecasts.value = []
-  const promises = forecastQueries.value.map(q =>
+
+  totalPages.value = Math.floor(forecastQueries.value.length / 10) + 1;
+
+  const startIdx = (page.value - 1) * 10;
+  const endIdx = startIdx + 10;
+  const queriesInPage = forecastQueries.value.slice(startIdx, endIdx);
+
+  const promises = queriesInPage.map(q =>
     fetchWeather(q).then(data => {
       const forecast = parseWeatherData(data.data)
+
       forecasts.value.push(forecast)
     }).catch(error => {
       console.error(`Error fetching weather for ${q}:`, error)
@@ -183,9 +194,16 @@ d888888P  88888888b 8888ba.88ba   888888ba  dP         .d888888  d888888P  88888
       />
     </div>
 
-    
-
     <AddForecastModal :isVisible="isModalVisible" @add="addForecast" @close="handleCloseModal" @error="handleError"/>
+
+    <Pagination
+      :currentPage="page"
+      :totalPages="totalPages"
+      @page-changed="(newPage) => {
+        page = newPage
+        updateForecasts()
+        }"
+    />
 
     <div v-if="hasErrors" class="notification is-danger" style="position: fixed; bottom: 1rem; right: 1rem; z-index: 1000; max-width: 400px;">
       <strong>Error:</strong>
