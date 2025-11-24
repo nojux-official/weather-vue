@@ -3,6 +3,13 @@
 This application provides current weather information for a specified city using the OpenWeatherMap API. It is built with Vue.js, Vite and Bulma.
 For the API requests, a simple Express.js proxy server is used to securely handle the OpenWeatherMap API key.
 
+## Features
+ * State-of-art Vue 3 with Composition API
+ * Caching of API responses to reduce redundant requests
+ * Can search by city name, geographic coordinates, or zip code
+ * Error handling for invalid city names or network issues
+ * Can be compiled to static files for production use
+
 ## Setup
 
 ### Prerequisites
@@ -12,7 +19,7 @@ For the API requests, a simple Express.js proxy server is used to securely handl
 ### Environment Configuration
 Create a `.env` file in the root directory:
 ```
-VITE_OPENWEATHER_API_KEY=your_api_key_here
+OPENWEATHER_API_KEY=your_api_key_here
 ```
 
 ## Development
@@ -40,3 +47,6 @@ Steps required to run in production mode:
 5. Access the app in your browser at `http://localhost:5173`
 
 
+## Screenshots
+![Screenshot 1](screenshots/screenshot1.png)
+![Screenshot 2](screenshots/screenshot2.png)
