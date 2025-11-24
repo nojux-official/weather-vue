@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import ForecastCard from '@/components/ForecastCard.vue'
+import AddForecastModal from '@/components/AddForecastModal.vue'
 
 export interface WeatherForecast {
   id: string
@@ -32,6 +33,11 @@ const forecasts = ref<WeatherForecast[]>([
   }
 ])
 
+function handleAddForecast() {
+
+  
+}
+
 </script>
 
 <template>
@@ -41,10 +47,15 @@ const forecasts = ref<WeatherForecast[]>([
       :key="forecast.id"
       :forecast="forecast"
     />
-    <div class="notification is-warning" style="margin: 1rem; align-self: end;">
+
+    <button class="button" onclick="handleAddForecast()">Add Forecast</button>
+
+    <AddForecastModal :isVisible="true" />
+
+    <!-- <div class="notification is-warning" style="margin: 1rem; align-self: end;">
       <strong>Warning:</strong>
       <p>This is a sample notification using Bulma CSS framework.</p>
-    </div>
+    </div> -->
   </div>
 </template>
 
