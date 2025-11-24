@@ -7,6 +7,8 @@ export interface WeatherForecast {
   id: string
   city: string
   country: string
+  zip: string
+  coordinates: string
   temperature: number
   humidity: number
   windSpeed: number
@@ -23,6 +25,8 @@ const initialForecasts: WeatherForecast[] = [
     id: '1',
     city: 'London',
     country: 'GB',
+    zip: 'SW1A 1AA',
+    coordinates: '51.5074° N, 0.1278° W',
     temperature: 15,
     humidity: 72,
     windSpeed: 5.2,
@@ -36,6 +40,8 @@ const initialForecasts: WeatherForecast[] = [
     id: '2',
     city: 'Tokyo',
     country: 'JP',
+    zip: '100-0001',
+    coordinates: '35.6895° N, 139.6917° E',
     temperature: 22,
     humidity: 65,
     windSpeed: 3.8,
@@ -49,6 +55,8 @@ const initialForecasts: WeatherForecast[] = [
     id: '3',
     city: 'New York',
     country: 'US',
+    zip: '10001',
+    coordinates: '40.7128° N, 74.0060° W',
     temperature: 18,
     humidity: 68,
     windSpeed: 6.5,
@@ -72,13 +80,24 @@ function handleCloseModal() {
   isModalVisible.value = false
 }
 
+function handleFilter(event: Event) {
+  const target = event.target as HTMLInputElement
+  
+  forecasts.value = initialForecasts.filter(forecast =>
+    forecast.city.toLowerCase().includes(target.value.toLowerCase()) ||
+    forecast.zip.includes(target.value) ||
+    forecast.coordinates.toLowerCase().includes(target.value.toLowerCase())
+  )
+}
+
 </script>
 
 <template>
   <div id="app" style="display: flex; flex-direction: column; min-height: 100vh;">
     <div class="field">
-      <div class="control">
-        <input class="input" type="text" placeholder="Filter forecasts" />
+      <div style="display: flex; flex-direction: row; gap: 1rem;" class="control">
+        <input class="input" type="text" placeholder="Filter forecasts" @change="handleFilter" />
+        <button class="button is-info" @click="">Filter</button>
       </div>
     </div>
 
