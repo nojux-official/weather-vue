@@ -17,25 +17,55 @@ export interface WeatherForecast {
   weatherImage: string
 }
 
-const forecasts = ref<WeatherForecast[]>([
+
+const initialForecasts: WeatherForecast[] = [
   {
     id: '1',
     city: 'London',
-    country: 'UK',
+    country: 'GB',
     temperature: 15,
+    humidity: 72,
+    windSpeed: 5.2,
+    pressure: 1013,
+    sunrise: '06:45 AM',
+    sunset: '05:30 PM',
     weatherCondition: 'Cloudy',
     weatherImage: '☁️',
+  },
+  {
+    id: '2',
+    city: 'Tokyo',
+    country: 'JP',
+    temperature: 22,
     humidity: 65,
-    windSpeed: 12,
-    pressure: 1013,
-    sunrise: '07:30',
-    sunset: '16:45'
-  }
-])
+    windSpeed: 3.8,
+    pressure: 1015,
+    sunrise: '05:30 AM',
+    sunset: '04:45 PM',
+    weatherCondition: 'Clear',
+    weatherImage: '☀️',
+  },
+  {
+    id: '3',
+    city: 'New York',
+    country: 'US',
+    temperature: 18,
+    humidity: 68,
+    windSpeed: 6.5,
+    pressure: 1012,
+    sunrise: '06:20 AM',
+    sunset: '05:00 PM',
+    weatherCondition: 'Rainy',
+    weatherImage: '🌧️',
+  },
+]
+
+const forecasts = ref<WeatherForecast[]>(initialForecasts)
+const searchQuery = ref('')
 
 const isModalVisible = ref(false)
 
-function handleAddForecast() {
+function handleOpenForecast() {
   isModalVisible.value = true
 }
 function handleCloseModal() {
@@ -46,13 +76,19 @@ function handleCloseModal() {
 
 <template>
   <div id="app" style="display: flex; flex-direction: column; min-height: 100vh;">
-    <ForecastCard
-      v-for="forecast in forecasts"
-      :key="forecast.id"
-      :forecast="forecast"
-    />
+    <div class="field">
+      <div class="control">
+        <input class="input" type="text" placeholder="Filter forecasts" />
+      </div>
+    </div>
 
-    <button class="button" @click="handleAddForecast">Add Forecast</button>
+    <div v-for="forecast in forecasts">
+      <ForecastCard
+        :forecast="forecast"
+      />
+    </div>
+
+    <button class="button" @click="handleOpenForecast">Add Forecast</button>
 
     <AddForecastModal :isVisible="isModalVisible" @close="handleCloseModal" />
 
