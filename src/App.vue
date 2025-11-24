@@ -32,6 +32,7 @@ d8'   .8P  88           88    Y8.   .8P  88
                                                    
 */
 const updateIntervalTime = 10 * 1000; //ms
+const recordsPerPage = 10;
 
 const page = ref(1)
 const totalPages = ref(1)
@@ -127,23 +128,21 @@ function addForecast(forecast: string) {
 }
 
 function removeForecast(id: string) {
-  
+  const startIdx = (page.value - 1) * 10;
+
+  const idx = startIdx + forecasts.value.findIndex(f => f.id === id)
   forecasts.value = forecasts.value.filter(f => f.id !== id)
-  forecastQueries.value = []
-  forecasts.value.map(f => {
-    forecastQueries.value.push(
-      `${f.coordinates}`
-      )
-  })
+  forecastQueries.value.splice(idx, 1)
+  
   console.log('Updated forecastQueries:', forecastQueries.value)
   localStorage.setItem('forecastQueries', JSON.stringify(forecastQueries.value))
-  
+  updateForecasts()
 }
 
 async function updateForecasts() {
   forecasts.value = []
 
-  totalPages.value = Math.floor(forecastQueries.value.length / 10) + 1;
+  totalPages.value = Math.floor(forecastQueries.value.length / recordsPerPage) + 1;
 
   const startIdx = (page.value - 1) * 10;
   const endIdx = startIdx + 10;
@@ -185,6 +184,15 @@ d888888P  88888888b 8888ba.88ba   888888ba  dP         .d888888  d888888P  88888
         <button class="button is-info" @click="">Filter</button>
       </div>
     </div>
+
+    <Pagination
+      :currentPage="page"
+      :totalPages="totalPages"
+      @page-changed="(newPage) => {
+        page = newPage
+        updateForecasts()
+        }"
+    />
 
     <div v-for="forecast in forecasts" :key="forecast.id">
       <ForecastCard
