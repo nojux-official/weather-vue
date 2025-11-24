@@ -1,24 +1,18 @@
 <script setup lang="ts"></script>
 
 <template>
-  <h1>You did it!</h1>
-  <section class="hero">
-    <div class="hero-body">
-      <p class="title">Hero title</p>
-      <p class="subtitle">Hero subtitle</p>
-    </div>
-  </section>
-  <div class="container">
-  <div class="notification is-primary">
-    This container is <strong>centered</strong> on desktop and larger viewports.
+
+
+<div id="app" style="display: flex; flex-direction: row; min-height: 100vh;">
+  
+
+  
+
+  
+  <div class="notification is-warning" style="margin: 1rem; align-self: end;">
+    <strong>Warning:</strong>
+    <p>This is a sample notification using Bulma CSS framework.</p>
   </div>
-  <section class="section">
-  <h1 class="title">Section</h1>
-  <h2 class="subtitle">
-    A simple container to d ivide your page into <strong>sections</strong>, like
-    the one you're currently reading.
-  </h2>
-</section>
 </div>
 
 
