@@ -262,7 +262,7 @@ d888888P  88888888b 8888ba.88ba   888888ba  dP         .d888888  d888888P  88888
 </template>
 
 <style lang="scss">
-@import "bulma";
+@import "https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css";
 
 .forecast-grid {
   display: grid;
