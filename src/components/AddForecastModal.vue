@@ -38,9 +38,10 @@ function handleSearch(event: Event) {
 
 function handleAdd() {
   if (selectedForecast.value) {
+    const queryToAdd = searchQuery.value
     forecasts.value = []
     searchQuery.value = ''
-    emit('add', searchQuery.value)
+    emit('add', queryToAdd)
     emit('close')
   }
 }

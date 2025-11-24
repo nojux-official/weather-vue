@@ -20,15 +20,14 @@ const detectQueryType = (data) => {
   if (data.includes(',')) {
     const parts = data.split(',');
     
-    // zip code with country code?
-    //TODO: fix
-    if (parts.length === 2 && /^\d+$/.test(parts[0].trim()) && /^[A-Z]{2}$/i.test(parts[1].trim())) {
-      return { type: 'zip', zip: parts[0].trim(), countryCode: parts[1].trim() };
-    }
-    
     // coordinates (lat,lon both numeric)?
     if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
       return { type: 'coords', lat: parts[0].trim(), lon: parts[1].trim() };
+    }
+
+    // zip code with country code?
+    if (parts.length === 2) {
+      return { type: 'zip', zip: parts[0].trim(), countryCode: parts[1].trim() };
     }
   }
 
