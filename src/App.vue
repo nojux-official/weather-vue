@@ -152,10 +152,10 @@ async function updateForecasts() {
     q.toLowerCase().includes(searchQuery.value)
   )
 
-  totalPages.value = Math.floor(forecastQueries.value.length / recordsPerPage) + 1;
+  totalPages.value = Math.ceil(forecastQueries.value.length / recordsPerPage);
 
-    const startIdx = (page.value - 1) * 10;
-    const endIdx = startIdx + 10;
+    const startIdx = (page.value - 1) * recordsPerPage;
+    const endIdx = startIdx + recordsPerPage;
     forecastQueries.value = forecastQueries.value.slice(startIdx, endIdx);
     const promises = forecastQueries.value.map(q =>
       fetchWeather(q).then(data => {
@@ -261,7 +261,7 @@ d888888P  88888888b 8888ba.88ba   888888ba  dP         .d888888  d888888P  88888
   </div>
 </template>
 
-<style lang="scss">
+<style>
 @import "https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css";
 
 .forecast-grid {
