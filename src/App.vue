@@ -108,13 +108,15 @@ fetchWeather('London').then(data => {
       </div>
     </div>
 
+    <button class="button" @click="handleOpenForecast">Add Forecast</button>
+
     <div v-for="forecast in forecasts">
       <ForecastCard
         :forecast="forecast"
       />
     </div>
 
-    <button class="button" @click="handleOpenForecast">Add Forecast</button>
+    
 
     <AddForecastModal :isVisible="isModalVisible" @close="handleCloseModal" />
 
