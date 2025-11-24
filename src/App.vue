@@ -51,6 +51,15 @@ function handleFilter(event: Event) {
   )
 }
 
+function updateForecasts() {
+  forecastQueries.value.forEach(q => {
+    fetchWeather(q).then(data => {
+      const forecast = parseWeatherData(data.data)
+      forecasts.value.push(forecast)
+    })
+  })
+}
+
 function startAutoUpdate() {
   updateInterval = window.setInterval(() => {
     console.log('Updating forecasts...', new Date().toLocaleTimeString())
@@ -65,6 +74,7 @@ function stopAutoUpdate() {
 }
 
 onMounted(() => {
+  updateForecasts()
   startAutoUpdate()
 })
 
