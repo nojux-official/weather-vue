@@ -10,6 +10,7 @@ const app = express();
 const API_KEY = process.env.OPENWEATHER_API_KEY;
 const PORT = process.env.PROXY_PORT || 3001;
 const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
+const UNITS = 'metric'; //standard, metric and imperial
 
 app.use(cors());
 
@@ -50,11 +51,11 @@ app.get('/weather', async (req, res) => {
 
   try {
     if (query.type === 'city') {
-      url = `https://api.openweathermap.org/data/2.5/weather?q=${query.city}&appid=${API_KEY}`;
+      url = `https://api.openweathermap.org/data/2.5/weather?q=${query.city}&units=${UNITS}&appid=${API_KEY}`;
     } else if (query.type === 'coords') {
-      url = `https://api.openweathermap.org/data/2.5/weather?lat=${query.lat}&lon=${query.lon}&appid=${API_KEY}`;
+      url = `https://api.openweathermap.org/data/2.5/weather?lat=${query.lat}&lon=${query.lon}&units=${UNITS}&appid=${API_KEY}`;
     } else if (query.type === 'zip') {
-      url = `https://api.openweathermap.org/data/2.5/weather?zip=${query.zip},${query.countryCode}&appid=${API_KEY}`;
+      url = `https://api.openweathermap.org/data/2.5/weather?zip=${query.zip},${query.countryCode}&units=${UNITS}&appid=${API_KEY}`;
     }
 
     const response = await axios.get(url, {
