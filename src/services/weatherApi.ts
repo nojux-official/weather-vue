@@ -12,22 +12,6 @@ function fetchWeather(query: string) {
     responseType: 'json',
   });
 }
-export interface WeatherForecast {
-  id: string
-  city: string
-  country: string
-  zip: string
-  coordinates: string
-  temperature: number
-  humidity: number
-  windSpeed: number
-  pressure: number
-  sunrise: string
-  sunset: string
-  weatherCondition: string
-  weatherImage: string
-}
-
 
 function parseWeatherData(data: any): WeatherForecast {
   return {
