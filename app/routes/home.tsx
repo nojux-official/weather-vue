@@ -122,13 +122,22 @@ export default function Home() {
     setAllForecastQueries(parsed);
   }, []);
 
-  // Add page dependency
   useEffect(() => {
     if (allForecastQueries.length > 0) {
       console.log('Loaded stored forecast queries:', allForecastQueries);
       updateForecasts();
     }
   }, [allForecastQueries, searchQuery, page]); // Added page dependency
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (allForecastQueries.length > 0) {
+        updateForecasts();
+      }
+    }, updateIntervalTime);
+
+    return () => clearInterval(interval);
+  }, [allForecastQueries]);
 
 
   return (
@@ -165,7 +174,7 @@ export default function Home() {
      </div>
     )}
 
-    {forecasts.length === 0 && (
+    {!isLoading && allForecastQueries.length === 0 && (
      <div className="notification is-info has-text-centered">
        <p className="is-size-5">
         
