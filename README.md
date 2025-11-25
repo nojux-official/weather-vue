@@ -1,5 +1,7 @@
 # weather-vue
 
+[Vue](https://github.com/nojux-official/weather-vue/tree/main) | [Typescript](https://github.com/nojux-official/weather-vue/tree/typescript)
+
 This application provides current weather information for a specified city using the OpenWeatherMap API. It is built with Vue.js, Vite and Bulma.
 For the API requests, a simple Express.js proxy server is used to securely handle the OpenWeatherMap API key.
 
