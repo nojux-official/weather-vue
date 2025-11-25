@@ -41,6 +41,22 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
+export interface WeatherForecast {
+  id: string
+  city: string
+  country: string
+  zip: string
+  coordinates: string
+  temperature: number
+  humidity: number
+  windSpeed: number
+  pressure: number
+  sunrise: string
+  sunset: string
+  weatherCondition: string
+  weatherImage: string
+}
+
 export default function App() {
   return <Outlet />;
 }
