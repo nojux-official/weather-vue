@@ -39,7 +39,6 @@ const totalPages = ref(1)
 const allForecastQueries = ref<string[]>(localStorage.getItem('forecastQueries')
   ? JSON.parse(localStorage.getItem('forecastQueries') as string)
   : [])
-const forecastQueries = ref<string[]>([...allForecastQueries.value])
 const forecasts = ref<WeatherForecast[]>([])
 const searchQuery = ref('')
 const isModalVisible = ref(false)
@@ -148,26 +147,29 @@ async function updateForecasts() {
   forecasts.value = []
 
   //TODO: by what to filter? queries can be city, coordinates or zip
-  forecastQueries.value = allForecastQueries.value.filter(q =>
+  let filteredQueries = allForecastQueries.value.filter(q =>
     q.toLowerCase().includes(searchQuery.value)
   )
 
-  totalPages.value = Math.ceil(forecastQueries.value.length / recordsPerPage);
+  totalPages.value = Math.ceil(filteredQueries.length / recordsPerPage)
 
-    const startIdx = (page.value - 1) * recordsPerPage;
-    const endIdx = startIdx + recordsPerPage;
-    forecastQueries.value = forecastQueries.value.slice(startIdx, endIdx);
-    const promises = forecastQueries.value.map(q =>
-      fetchWeather(q).then(data => {
-        const forecast = parseWeatherData(data.data)
+  const startIdx = (page.value - 1) * recordsPerPage;
+  const endIdx = startIdx + recordsPerPage;
+  filteredQueries = filteredQueries.slice(startIdx, endIdx)
 
-        forecasts.value.push(forecast)
-      }).catch(error => {
-        console.error(`Error fetching weather for ${q}:`, error)
-        handleError(`Error fetching weather for ${q}: ${error.message}`)
-      })
+  const promises = filteredQueries.map(q =>
+    fetchWeather(q).then((data: { data: unknown }) => {
+      const forecast = parseWeatherData(data.data)
+      return forecast
+    }).catch((error: Error) => {
+      console.error(`Error fetching weather for ${q}:`, error)
+      handleError(`Error fetching weather for ${q}: ${error.message}`)
+      return null
+    })
   )
-  await Promise.all(promises)
+  
+  const results = await Promise.all(promises)
+  forecasts.value = results.filter((forecast: WeatherForecast | null): forecast is WeatherForecast => forecast !== null)
   isLoading.value = false
 }
 
