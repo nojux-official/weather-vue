@@ -1,87 +1,49 @@
-# Welcome to React Router!
+# weather-vue
 
-A modern, production-ready template for building full-stack React applications using React Router.
+[Vue](https://github.com/nojux-official/weather-vue/tree/main) | [Typescript](https://github.com/nojux-official/weather-vue/tree/typescript)
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/remix-run/react-router-templates/tree/main/default)
+This application provides current weather information for a specified city using the OpenWeatherMap API. It is built with React, Vite and Bulma.
+For the API requests, a simple Express.js proxy server is used to securely handle the OpenWeatherMap API key.
 
 ## Features
+ * React frontend
+ * Caching of API responses to reduce redundant requests
+ * Can search by city name, geographic coordinates, or zip code
+ * Error handling for invalid city names or network issues
+ * Can be compiled to static files for production use
 
-- 🚀 Server-side rendering
-- ⚡️ Hot Module Replacement (HMR)
-- 📦 Asset bundling and optimization
-- 🔄 Data loading and mutations
-- 🔒 TypeScript by default
-- 🎉 TailwindCSS for styling
-- 📖 [React Router docs](https://reactrouter.com/)
+## Setup
 
-## Getting Started
+### Prerequisites
+- Node.js and npm installed (long-term support version recommended)
+- OpenWeatherMap API key (get one free at [OpenWeatherMap](https://openweathermap.org/api))
 
-### Installation
-
-Install the dependencies:
-
-```bash
-npm install
+### Environment Configuration
+Create a `.env` file in the root directory:
+```
+OPENWEATHER_API_KEY=your_api_key_here
 ```
 
-### Development
+## Development
 
-Start the development server with HMR:
-
-```bash
+```sh
+npm install
 npm run dev
 ```
 
-Your application will be available at `http://localhost:5173`.
+The app will be running at `http://localhost:5173`.
 
-## Building for Production
+### Production
+This includes code Type-Check, Compilation and Minification
 
-Create a production build:
+Steps required to run in production mode:
+1. Build the app (`npm run build`)
+2. Serve the built files (e.g., using `http-server ./dist`)
+3. Get the API key and place it in the .env file
+4. Run the proxy server as it provides api access (`npm run proxy`)
+5. Access the app in your browser at `http://localhost:5173`
 
-```bash
-npm run build
-```
 
-## Deployment
-
-### Docker Deployment
-
-To build and run using Docker:
-
-```bash
-docker build -t my-app .
-
-# Run the container
-docker run -p 3000:3000 my-app
-```
-
-The containerized application can be deployed to any platform that supports Docker, including:
-
-- AWS ECS
-- Google Cloud Run
-- Azure Container Apps
-- Digital Ocean App Platform
-- Fly.io
-- Railway
-
-### DIY Deployment
-
-If you're familiar with deploying Node applications, the built-in app server is production-ready.
-
-Make sure to deploy the output of `npm run build`
-
-```
-├── package.json
-├── package-lock.json (or pnpm-lock.yaml, or bun.lockb)
-├── build/
-│   ├── client/    # Static assets
-│   └── server/    # Server-side code
-```
-
-## Styling
-
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever CSS framework you prefer.
-
----
-
-Built with ❤️ using React Router.
+## Screenshots
+![Screenshot 1](screenshots/screenshot1.png)
+![Screenshot 2](screenshots/screenshot2.png)
