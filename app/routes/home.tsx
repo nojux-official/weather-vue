@@ -1,6 +1,7 @@
 import type { Route } from "./+types/home";
 import type { WeatherForecast } from "~/root";
 import ForecastCard from "~/components/ForecastCard"
+import AddForecastModal from "~/components/AddForecastModal";
 import { fetchWeather, parseWeatherData } from "~/services/weatherApi";
 import { useEffect, useState } from "react";
 
@@ -12,8 +13,10 @@ export function meta({}: Route.MetaArgs) {
 }
 
 
+
 export default function Home() {
   const [forecast, setForecast] = useState<WeatherForecast>(new Object() as WeatherForecast);
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   useEffect(() => {
     fetchWeather("London")
@@ -25,6 +28,13 @@ export default function Home() {
       .catch(() => setForecast(null));
   }, []);
 
+    function handleOpenForecast() {
+      setIsModalVisible(true);
+    }
+    function handleCloseModal() {
+      setIsModalVisible(false);
+    }
+
   return (
     <div id="app" className="container p-4">
       <div className="level mb-5">
@@ -32,7 +42,7 @@ export default function Home() {
           <h1 className="title is-3">Weather Forecasts</h1>
         </div>
         <div className="level-right">
-          <button className="button is-primary">Add Forecast</button>
+          <button className="button is-primary" onClick={handleOpenForecast}>Add Forecast</button>
         </div>
       </div>
 
@@ -66,7 +76,7 @@ export default function Home() {
        <ForecastCard forecast={forecast} showRemoveButton={false} />
      </div>
 
-     {/* <AddForecastModal :isVisible="isModalVisible" @add="addForecast" @close="handleCloseModal" @error="handleError"/> */}
+     <AddForecastModal isVisible={isModalVisible} onClose={handleCloseModal} />
 
     //pagination here
 
