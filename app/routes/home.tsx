@@ -2,6 +2,7 @@ import type { Route } from "./+types/home";
 import type { WeatherForecast } from "~/root";
 import ForecastCard from "~/components/ForecastCard"
 import AddForecastModal from "~/components/AddForecastModal";
+import Pagination from "~/components/Pagination";
 import { fetchWeather, parseWeatherData } from "~/services/weatherApi";
 import { use, useEffect, useState } from "react";
 
@@ -13,8 +14,13 @@ export function meta({}: Route.MetaArgs) {
 }
 
 
+const updateIntervalTime = 10 * 1000; //ms
+const recordsPerPage = 10;
+
 
 export default function Home() {
+  const [page, setPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
   const [allForecastQueries, setAllForecastQueries] = useState<string[]>([]);
   const [forecastQueries, setForecastQueries] = useState<string[]>([]);
   const [forecasts, setForecasts] = useState<WeatherForecast[]>([]);
@@ -53,6 +59,11 @@ export default function Home() {
     }, 5000)
   }
 
+  function handlePageChange(newPage: number){
+    setPage(newPage)
+    updateForecasts()
+  }
+
   function addForecast(forecast: string) {
     setAllForecastQueries(prev => {
       const updated = [...prev, forecast];
@@ -78,15 +89,22 @@ export default function Home() {
 
 
   async function updateForecasts() {
-    setIsLoading(true);
+    setIsLoading(true)
     setForecasts([])
 
     //TODO: by what to filter? queries can be city, coordinates or zip
-    const filteredQueries =allForecastQueries.filter(q =>
+    
+    let filteredQueries = allForecastQueries.filter(q =>
       q.toLowerCase().includes(searchQuery)
     )
 
-    
+    setTotalPages(Math.ceil(forecastQueries.length / recordsPerPage))
+
+    const startIdx = (page - 1) * recordsPerPage;
+    filteredQueries = filteredQueries.splice(startIdx, startIdx + recordsPerPage)
+
+
+
     const promises = filteredQueries.map(q =>
       fetchWeather(q).then(data => {
         const forecast = parseWeatherData(data.data)
