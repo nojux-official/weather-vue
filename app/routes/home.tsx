@@ -93,17 +93,14 @@ export default function Home() {
     setForecasts([])
 
     //TODO: by what to filter? queries can be city, coordinates or zip
-    
     let filteredQueries = allForecastQueries.filter(q =>
       q.toLowerCase().includes(searchQuery)
     )
 
-    setTotalPages(Math.ceil(forecastQueries.length / recordsPerPage))
+    setTotalPages(Math.ceil(filteredQueries.length / recordsPerPage))
 
     const startIdx = (page - 1) * recordsPerPage;
     filteredQueries = filteredQueries.splice(startIdx, startIdx + recordsPerPage)
-
-
 
     const promises = filteredQueries.map(q =>
       fetchWeather(q).then(data => {
@@ -157,7 +154,7 @@ export default function Home() {
        </div>
      </div>
 
-     //Pagination controls here
+    <Pagination currentPage={page} totalPages={totalPages} onPageChange={handlePageChange}/> 
 
     {isLoading && (
      <div  className="has-text-centered py-6">
@@ -186,7 +183,8 @@ export default function Home() {
 
      <AddForecastModal isVisible={isModalVisible} onAdd={addForecast} onClose={handleCloseModal} onError={handleError}/>
 
-    //pagination here
+    <Pagination currentPage={page} totalPages={totalPages} onPageChange={handlePageChange}/>
+
 
     {hasErrors && (
      <div  className="notification is-danger error-toast">
