@@ -20,17 +20,8 @@ export default function AddForecastModal({
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
 
-  function handleSearch(event: React.ChangeEvent<HTMLInputElement>) {
-    const value = event.target.value;
-    setSearchQuery(value);
-
-    if (!value) {
-      setForecast(null);
-      return;
-    }
-
-    setIsSearching(true);
-    fetchWeather(value)
+  function handleSearch() {
+    fetchWeather(searchQuery)
       .then((data) => {
         const parsedForecast = parseWeatherData(data.data);
         setForecast(parsedForecast);
@@ -41,9 +32,23 @@ export default function AddForecastModal({
           error.response?.data?.message || error.message || "Unknown error";
         const errorCode =
           error.response?.data?.cod || error.response?.status || "N/A";
-        onError(`Error (${errorCode}) for ${value}: ${errorMessage}`);
+        onError(`Error (${errorCode}) for ${searchQuery}: ${errorMessage}`);
       })
       .finally(() => setIsSearching(false));
+  }
+
+  function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
+    setSearchQuery(event.target.value);
+  }
+
+  function handleInputBlur() {
+    if (searchQuery) handleSearch();
+  }
+
+  function handleInputKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (event.key === "Enter" && searchQuery) {
+      handleSearch();
+    }
   }
 
   function handleAdd() {
@@ -67,18 +72,28 @@ export default function AddForecastModal({
         </header>
 
         <section className="modal-card-body">
-          <div className="field mb-5">
-            <label className="label">Location</label>
-            <div className="control">
+          <div className="field has-addons">
+            <div className="control is-expanded">
               <input
                 className="input is-medium"
                 type="text"
                 placeholder="City, coordinates (lat,lon), or zip code"
                 value={searchQuery}
-                onChange={handleSearch}
+                onChange={handleInputChange}
+                onBlur={handleInputBlur}
+                onKeyDown={handleInputKeyDown}
               />
             </div>
-            <p className="help">Press Enter or click away to search</p>
+            <div className="control">
+              <button
+                className="button is-info  is-medium"
+                type="button"
+                disabled={!searchQuery || isSearching}
+                onClick={handleSearch}
+              >
+                Search
+              </button>
+            </div>
           </div>
 
           {isSearching ? (
