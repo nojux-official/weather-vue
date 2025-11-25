@@ -22,7 +22,6 @@ export default function Home() {
   const [page, setPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [allForecastQueries, setAllForecastQueries] = useState<string[]>([]);
-  const [forecastQueries, setForecastQueries] = useState<string[]>([]);
   const [forecasts, setForecasts] = useState<WeatherForecast[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -30,24 +29,25 @@ export default function Home() {
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  async function handleFilter(event: Event) {
-    const target = event.target as HTMLInputElement
-    const filterValue = target.value.toLowerCase()
-    setSearchQuery(filterValue)
-
-    await updateForecasts()
-  }
 
   function clearSearch() {
     setSearchQuery('')
-    updateForecasts()
+    setPage(1) // Reset to first page
   }
+
   function handleOpenForecast() {
     setIsModalVisible(true);
   }
   function handleCloseModal() {
     setIsModalVisible(false);
   }
+
+  function handleFilter(event: React.ChangeEvent<HTMLInputElement>) {
+    const filterValue = event.target.value
+    setSearchQuery(filterValue)
+    setPage(1) // Reset to first page when searching
+  } 
+
 
   function handleError(message: string) {
       setHasErrors(true)
@@ -91,17 +91,16 @@ export default function Home() {
     setIsLoading(true)
     setForecasts([])
 
-    //TODO: by what to filter? queries can be city, coordinates or zip
     let filteredQueries = allForecastQueries.filter(q =>
-      q.toLowerCase().includes(searchQuery)
+      q.toLowerCase().includes(searchQuery.toLowerCase())
     )
 
     setTotalPages(Math.ceil(filteredQueries.length / recordsPerPage))
 
     const startIdx = (page - 1) * recordsPerPage;
-    filteredQueries = filteredQueries.splice(startIdx, startIdx + recordsPerPage)
+    const paginatedQueries = filteredQueries.slice(startIdx, startIdx + recordsPerPage) // Use slice, not splice
 
-    const promises = filteredQueries.map(q =>
+    const promises = paginatedQueries.map(q =>
       fetchWeather(q).then(data => {
         const forecast = parseWeatherData(data.data)
         return forecast;
@@ -112,7 +111,8 @@ export default function Home() {
       })
     )
     const results = await Promise.all(promises)
-    setForecasts(results)
+    const validForecasts = results.filter(forecast => forecast !== null) // Filter out null results
+    setForecasts(validForecasts)
     setIsLoading(false)
   }
 
@@ -122,10 +122,13 @@ export default function Home() {
     setAllForecastQueries(parsed);
   }, []);
 
+  // Add page dependency
   useEffect(() => {
-    console.log('Loaded stored forecast queries:', allForecastQueries);
-    updateForecasts();
-  }, [allForecastQueries, searchQuery]);
+    if (allForecastQueries.length > 0) {
+      console.log('Loaded stored forecast queries:', allForecastQueries);
+      updateForecasts();
+    }
+  }, [allForecastQueries, searchQuery, page]); // Added page dependency
 
 
   return (
@@ -145,11 +148,12 @@ export default function Home() {
            className="input" 
            type="text" 
            placeholder="Search by city, zip, or coordinates..." 
-           v-model="searchQuery"
+           value={searchQuery}
+           onChange={handleFilter}
          />
        </div>
        <div className="control">
-         <button className="button" title="Clear search">✕</button>
+         <button className="button" title="Clear search" onClick={clearSearch}>✕</button>
        </div>
      </div>
 
