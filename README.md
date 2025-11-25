@@ -38,7 +38,7 @@ This includes code Type-Check, Compilation and Minification
 
 Steps required to run in production mode:
 1. Build the app (`npm run build`)
-2. Serve the built files (e.g., using `http-server ./dist`)
+2. Serve the built files (e.g., using `http-server ./build/client/`)
 3. Get the API key and place it in the .env file
 4. Run the proxy server as it provides api access (`npm run proxy`)
 5. Access the app in your browser at `http://localhost:5173`
