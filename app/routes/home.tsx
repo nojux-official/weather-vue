@@ -3,8 +3,7 @@ import type { WeatherForecast } from "~/root";
 import ForecastCard from "~/components/ForecastCard"
 import AddForecastModal from "~/components/AddForecastModal";
 import { fetchWeather, parseWeatherData } from "~/services/weatherApi";
-import { useEffect, useState } from "react";
-import { updateCache } from "axios-cache-interceptor";
+import { use, useEffect, useState } from "react";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -16,18 +15,28 @@ export function meta({}: Route.MetaArgs) {
 
 
 export default function Home() {
-  const [allForecastQueries, setAllForecastQueries] = useState<string[]>(() => {
-    const storedQueries = localStorage.getItem('forecastQueries');
-    return storedQueries ? JSON.parse(storedQueries) : [];
-  });
-  const [forecastQueries, setForecastQueries] = useState<string[]>(allForecastQueries);
+  const [allForecastQueries, setAllForecastQueries] = useState<string[]>([]);
+  const [forecastQueries, setForecastQueries] = useState<string[]>([]);
   const [forecasts, setForecasts] = useState<WeatherForecast[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [hasErrors, setHasErrors] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  async function handleFilter(event: Event) {
+    const target = event.target as HTMLInputElement
+    const filterValue = target.value.toLowerCase()
+    setSearchQuery(filterValue)
+    // page.value = 1
 
+    await updateForecasts()
+  }
+
+  function clearSearch() {
+    setSearchQuery('')
+    updateForecasts()
+  }
   function handleOpenForecast() {
     setIsModalVisible(true);
   }
@@ -50,7 +59,7 @@ export default function Home() {
       localStorage.setItem('forecastQueries', JSON.stringify(updated));
       return updated;
     });
-    // updateForecasts();
+    updateForecasts();
   }
 
   function removeForecast(id: string) {
@@ -64,8 +73,45 @@ export default function Home() {
       localStorage.setItem('forecastQueries', JSON.stringify(updated));
       return updated;
     });
-    // updateForecasts();
+    updateForecasts();
   }
+
+
+  async function updateForecasts() {
+    setIsLoading(true);
+    setForecasts([])
+
+    //TODO: by what to filter? queries can be city, coordinates or zip
+    const filteredQueries =allForecastQueries.filter(q =>
+      q.toLowerCase().includes(searchQuery)
+    )
+
+    
+    const promises = filteredQueries.map(q =>
+      fetchWeather(q).then(data => {
+        const forecast = parseWeatherData(data.data)
+        return forecast;
+      }).catch(error => {
+        console.error(`Error fetching weather for ${q}:`, error)
+        handleError(`Error fetching weather for ${q}: ${error.message}`)
+        return null;
+      })
+    )
+    const results = await Promise.all(promises)
+    setForecasts(results)
+    setIsLoading(false)
+  }
+
+  useEffect(() => {
+    const storedQueries = localStorage.getItem('forecastQueries');
+    const parsed = storedQueries ? JSON.parse(storedQueries) : [];
+    setAllForecastQueries(parsed);
+  }, []);
+
+  useEffect(() => {
+    console.log('Loaded stored forecast queries:', allForecastQueries);
+    updateForecasts();
+  }, [allForecastQueries, searchQuery]);
 
 
   return (
