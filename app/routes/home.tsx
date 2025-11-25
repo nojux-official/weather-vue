@@ -13,6 +13,16 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
+/*
+.d88888b   88888888b d888888P dP     dP  888888ba  
+88.    "'  88           88    88     88  88    `8b 
+`Y88888b. a88aaaa       88    88     88 a88aaaa8P' 
+      `8b  88           88    88     88  88        
+d8'   .8P  88           88    Y8.   .8P  88        
+ Y88888P   88888888P    dP    `Y88888P'  dP        
+                                                   
+                                                   
+*/
 
 const updateIntervalTime = 10 * 1000; //ms
 const recordsPerPage = 10;
@@ -30,6 +40,16 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
 
 
+  /*
+dP     dP   .d888888  888888ba  888888ba  dP         88888888b  888888ba  .d88888b  
+88     88  d8'    88  88    `8b 88    `8b 88         88         88    `8b 88.    "' 
+88aaaaa88a 88aaaaa88a 88     88 88     88 88        a88aaaa    a88aaaa8P' `Y88888b. 
+88     88  88     88  88     88 88     88 88         88         88   `8b.       `8b 
+88     88  88     88  88     88 88    .8P 88         88         88     88 d8'   .8P 
+dP     dP  88     88  dP     dP 8888888P  88888888P  88888888P  dP     dP  Y88888P  
+                                                                                    
+                                                                                    
+*/
   function clearSearch() {
     setSearchQuery('')
     setPage(1) // Reset to first page
@@ -62,6 +82,17 @@ export default function Home() {
     setPage(newPage)
     updateForecasts()
   }
+
+  /*
+dP     dP d888888P dP dP        
+88     88    88    88 88        
+88     88    88    88 88        
+88     88    88    88 88        
+Y8.   .8P    88    88 88        
+`Y88888P'    dP    dP 88888888P 
+                                
+                                
+*/
 
   function addForecast(forecast: string) {
     setAllForecastQueries(prev => {
@@ -116,19 +147,22 @@ export default function Home() {
     setIsLoading(false)
   }
 
+  // LOCAL STORAGE
   useEffect(() => {
     const storedQueries = localStorage.getItem('forecastQueries');
     const parsed = storedQueries ? JSON.parse(storedQueries) : [];
     setAllForecastQueries(parsed);
   }, []);
 
+  // UPDATE ON INTERACTION
   useEffect(() => {
     if (allForecastQueries.length > 0) {
       console.log('Loaded stored forecast queries:', allForecastQueries);
       updateForecasts();
     }
-  }, [allForecastQueries, searchQuery, page]); // Added page dependency
+  }, [allForecastQueries, searchQuery, page]);
 
+  // AUTO UPDATE
   useEffect(() => {
     const interval = setInterval(() => {
       if (allForecastQueries.length > 0) {
@@ -139,6 +173,16 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [allForecastQueries]);
 
+  /*
+d888888P  88888888b 8888ba.88ba   888888ba  dP         .d888888  d888888P  88888888b 
+   88     88        88  `8b  `8b  88    `8b 88        d8'    88     88     88        
+   88    a88aaaa    88   88   88 a88aaaa8P' 88        88aaaaa88a    88    a88aaaa    
+   88     88        88   88   88  88        88        88     88     88     88        
+   88     88        88   88   88  88        88        88     88     88     88        
+   dP     88888888P dP   dP   dP  dP        88888888P 88     88     dP     88888888P 
+                                                                                     
+                                                                                     
+*/
 
   return (
     <div id="app" className="container p-4">
