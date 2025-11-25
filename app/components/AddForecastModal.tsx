@@ -16,28 +16,43 @@ export default function AddForecastModal({
   onAdd,
   onError,
 }: AddForecastModalProps) {
-  const [forecasts, setForecasts] = useState<WeatherForecast[]>([]);
+  const [forecast, setForecast] = useState<WeatherForecast | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedForecast, setSelectedForecast] = useState<WeatherForecast | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
 
   function handleSearch(event: React.ChangeEvent<HTMLInputElement>) {
     const value = event.target.value;
     setSearchQuery(value);
 
+    if (!value) {
+      setForecast(null);
+      return;
+    }
+
+    setIsSearching(true);
     fetchWeather(value)
       .then((data) => {
         const parsedForecast = parseWeatherData(data.data);
-        setForecasts([parsedForecast]);
-        setSelectedForecast(parsedForecast);
+        setForecast(parsedForecast);
       })
       .catch((error) => {
-        console.error(`Error fetching weather data for ${value}:`, error);
+        setForecast(null);
         const errorMessage =
           error.response?.data?.message || error.message || "Unknown error";
         const errorCode =
           error.response?.data?.cod || error.response?.status || "N/A";
         onError(`Error (${errorCode}) for ${value}: ${errorMessage}`);
-      });
+      })
+      .finally(() => setIsSearching(false));
+  }
+
+  function handleAdd() {
+    if (forecast && searchQuery) {
+      onAdd(searchQuery);
+      onClose();
+      setForecast(null);
+      setSearchQuery("");
+    }
   }
 
   if (!isVisible) return null;
@@ -66,28 +81,30 @@ export default function AddForecastModal({
             <p className="help">Press Enter or click away to search</p>
           </div>
 
-          {forecasts && forecasts.length > 0 ? (
+          {isSearching ? (
+            <div className="has-text-centered py-5">
+              <p className="has-text-grey">Searching...</p>
+            </div>
+          ) : forecast ? (
             <div className="preview-section">
               <p className="subtitle is-6 mb-3">Preview:</p>
-              {forecasts.map((forecast) => (
-                <ForecastCard key={forecast.id} forecast={forecast} />
-              ))}
+              <ForecastCard forecast={forecast} />
             </div>
           ) : searchQuery ? (
             <div className="has-text-centered py-5">
-              <p className="has-text-grey">Searching...</p>
+              <p className="has-text-grey">No forecast found.</p>
             </div>
           ) : null}
         </section>
 
         <footer className="modal-card-foot" style={{ justifyContent: "space-between" }}>
-          <button className="button" onClick={onClose} onError={onError}>
+          <button className="button" onClick={onClose}>
             Cancel
           </button>
           <button
             className="button is-primary"
-            disabled={!selectedForecast}
-            onClick={onClose}
+            disabled={!forecast}
+            onClick={handleAdd}
           >
             Add Forecast
           </button>
