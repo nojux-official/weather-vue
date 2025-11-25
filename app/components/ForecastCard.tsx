@@ -3,13 +3,14 @@ import type { WeatherForecast } from '~/root.tsx'
 interface ForecastCardProps {
   forecast: WeatherForecast;
   showRemoveButton?: boolean;
+  onRemove: (id: string) => void;
 }
 
-export default function ForecastCard({ forecast, showRemoveButton }: ForecastCardProps) {
+export default function ForecastCard({ forecast, showRemoveButton, onRemove }: ForecastCardProps) {
   return (
     <div className="card forecast-tile">
       <div className="card-image has-text-centered pt-4">
-        {/* <img src={forecast.weatherImage} alt={forecast.weatherCondition} className="weather-icon" /> */}
+        <img src={forecast.weatherImage} alt={forecast.weatherCondition} className="weather-icon" />
       </div>
       <div className="card-content">
         <div className="has-text-centered mb-3">
@@ -47,7 +48,7 @@ export default function ForecastCard({ forecast, showRemoveButton }: ForecastCar
       </div>
       {showRemoveButton && (
       <footer className="card-footer">
-        <a className="card-footer-item has-text-danger">
+        <a className="card-footer-item has-text-danger" onClick={() => onRemove(forecast.id)}>
           Remove
         </a>
       </footer>

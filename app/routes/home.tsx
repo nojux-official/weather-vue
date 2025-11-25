@@ -34,7 +34,6 @@ export default function Home() {
     const target = event.target as HTMLInputElement
     const filterValue = target.value.toLowerCase()
     setSearchQuery(filterValue)
-    // page.value = 1
 
     await updateForecasts()
   }
@@ -74,7 +73,7 @@ export default function Home() {
   }
 
   function removeForecast(id: string) {
-    const startIdx = 0 //(page.value - 1) * 10;
+    const startIdx = (page - 1) * 10;
 
     const idx = startIdx + forecasts.findIndex(f => f.id === id)
     setForecasts(forecasts.filter(f => f.id !== id))
@@ -166,7 +165,7 @@ export default function Home() {
      <div className="notification is-info has-text-centered">
        <p className="is-size-5">
         
-         'No forecasts added yet. Click "Add Forecast" to get started!'
+          No forecasts added yet. Click "Add Forecast" to get started!
        </p>
      </div>
     )}
@@ -176,7 +175,8 @@ export default function Home() {
         <ForecastCard 
           key={forecast.id}
           forecast={forecast} 
-          showRemoveButton={false} 
+          showRemoveButton={true} 
+          onRemove={removeForecast}
         />
       ))}
      </div>
