@@ -1,5 +1,8 @@
 import type { Route } from "./+types/home";
-// import { WeatherForecast } from "~/root";
+import type { WeatherForecast } from "~/root";
+import ForecastCard from "~/components/ForecastCard"
+import { fetchWeather, parseWeatherData } from "~/services/weatherApi";
+import { useEffect, useState } from "react";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -8,7 +11,20 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
+
 export default function Home() {
+  const [forecast, setForecast] = useState<WeatherForecast>(new Object() as WeatherForecast);
+
+  useEffect(() => {
+    fetchWeather("London")
+      .then(data => {
+        const weatherData = data.data;
+        setForecast(parseWeatherData(weatherData));
+        console.log(weatherData);
+      })
+      .catch(() => setForecast(null));
+  }, []);
+
   return (
     <div id="app" className="container p-4">
       <div className="level mb-5">
@@ -40,14 +56,14 @@ export default function Home() {
        <div className="is-size-4">Loading forecasts...</div>
      </div>
 
-     <div v-else-if="forecasts.length === 0" className="notification is-info has-text-centered">
+     <div className="notification is-info has-text-centered">
        <p className="is-size-5">
          'No forecasts added yet. Click "Add Forecast" to get started!'
        </p>
      </div>
 
-     <div  className="forecast-grid">
-       //forecast card
+     <div className="forecast-grid">
+       <ForecastCard forecast={forecast} showRemoveButton={false} />
      </div>
 
      {/* <AddForecastModal :isVisible="isModalVisible" @add="addForecast" @close="handleCloseModal" @error="handleError"/> */}
