@@ -4,6 +4,7 @@ import ForecastCard from "~/components/ForecastCard"
 import AddForecastModal from "~/components/AddForecastModal";
 import { fetchWeather, parseWeatherData } from "~/services/weatherApi";
 import { useEffect, useState } from "react";
+import { updateCache } from "axios-cache-interceptor";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -15,36 +16,57 @@ export function meta({}: Route.MetaArgs) {
 
 
 export default function Home() {
-  const [forecast, setForecast] = useState<WeatherForecast>(new Object() as WeatherForecast);
+  const [allForecastQueries, setAllForecastQueries] = useState<string[]>(() => {
+    const storedQueries = localStorage.getItem('forecastQueries');
+    return storedQueries ? JSON.parse(storedQueries) : [];
+  });
+  const [forecastQueries, setForecastQueries] = useState<string[]>(allForecastQueries);
+  const [forecasts, setForecasts] = useState<WeatherForecast[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [hasErrors, setHasErrors] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    fetchWeather("London")
-      .then(data => {
-        const weatherData = data.data;
-        setForecast(parseWeatherData(weatherData));
-        console.log(weatherData);
-      })
-      .catch(() => setForecast(null));
-  }, []);
 
-    function handleOpenForecast() {
-      setIsModalVisible(true);
-    }
-    function handleCloseModal() {
-      setIsModalVisible(false);
-    }
+  function handleOpenForecast() {
+    setIsModalVisible(true);
+  }
+  function handleCloseModal() {
+    setIsModalVisible(false);
+  }
 
-    function handleError(message: string) {
+  function handleError(message: string) {
       setHasErrors(true)
       setErrorMessage(message)
       setTimeout(() => {
         setHasErrors(false)
         setErrorMessage("")
     }, 5000)
-}
+  }
+
+  function addForecast(forecast: string) {
+    setAllForecastQueries(prev => {
+      const updated = [...prev, forecast];
+      localStorage.setItem('forecastQueries', JSON.stringify(updated));
+      return updated;
+    });
+    // updateForecasts();
+  }
+
+  function removeForecast(id: string) {
+    const startIdx = 0 //(page.value - 1) * 10;
+
+    const idx = startIdx + forecasts.findIndex(f => f.id === id)
+    setForecasts(forecasts.filter(f => f.id !== id))
+    setAllForecastQueries(prev => {
+      const updated = [...prev];
+      updated.splice(idx, 1);
+      localStorage.setItem('forecastQueries', JSON.stringify(updated));
+      return updated;
+    });
+    // updateForecasts();
+  }
+
 
   return (
     <div id="app" className="container p-4">
@@ -73,21 +95,32 @@ export default function Home() {
 
      //Pagination controls here
 
+    {isLoading && (
      <div  className="has-text-centered py-6">
        <div className="is-size-4">Loading forecasts...</div>
      </div>
+    )}
 
+    {forecasts.length === 0 && (
      <div className="notification is-info has-text-centered">
        <p className="is-size-5">
+        
          'No forecasts added yet. Click "Add Forecast" to get started!'
        </p>
      </div>
+    )}
 
      <div className="forecast-grid">
-       <ForecastCard forecast={forecast} showRemoveButton={false} />
+      {forecasts.map(forecast => (
+        <ForecastCard 
+          key={forecast.id}
+          forecast={forecast} 
+          showRemoveButton={false} 
+        />
+      ))}
      </div>
 
-     <AddForecastModal isVisible={isModalVisible} onClose={handleCloseModal} onError={handleError}/>
+     <AddForecastModal isVisible={isModalVisible} onAdd={addForecast} onClose={handleCloseModal} onError={handleError}/>
 
     //pagination here
 
