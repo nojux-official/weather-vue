@@ -17,6 +17,8 @@ export function meta({}: Route.MetaArgs) {
 export default function Home() {
   const [forecast, setForecast] = useState<WeatherForecast>(new Object() as WeatherForecast);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [hasErrors, setHasErrors] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     fetchWeather("London")
@@ -34,6 +36,15 @@ export default function Home() {
     function handleCloseModal() {
       setIsModalVisible(false);
     }
+
+    function handleError(message: string) {
+      setHasErrors(true)
+      setErrorMessage(message)
+      setTimeout(() => {
+        setHasErrors(false)
+        setErrorMessage("")
+    }, 5000)
+}
 
   return (
     <div id="app" className="container p-4">
@@ -76,15 +87,17 @@ export default function Home() {
        <ForecastCard forecast={forecast} showRemoveButton={false} />
      </div>
 
-     <AddForecastModal isVisible={isModalVisible} onClose={handleCloseModal} />
+     <AddForecastModal isVisible={isModalVisible} onClose={handleCloseModal} onError={handleError}/>
 
     //pagination here
 
+    {hasErrors && (
      <div  className="notification is-danger error-toast">
        <button className="delete"></button>
        <strong>Error:</strong>
-       <p>Error</p>
+       <p>{errorMessage}</p>
      </div>
+    )}
   </div>
   );
 }

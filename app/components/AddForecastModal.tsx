@@ -40,16 +40,6 @@ export default function AddForecastModal({
       });
   }
 
-  function handleAdd() {
-    if (selectedForecast) {
-      const queryToAdd = searchQuery;
-      setForecasts([]);
-      setSearchQuery("");
-      onAdd(queryToAdd);
-      onClose();
-    }
-  }
-
   if (!isVisible) return null;
 
   return (
@@ -91,13 +81,13 @@ export default function AddForecastModal({
         </section>
 
         <footer className="modal-card-foot" style={{ justifyContent: "space-between" }}>
-          <button className="button" onClick={onClose}>
+          <button className="button" onClick={onClose} onError={onError}>
             Cancel
           </button>
           <button
             className="button is-primary"
             disabled={!selectedForecast}
-            onClick={handleAdd}
+            onClick={onClose}
           >
             Add Forecast
           </button>
